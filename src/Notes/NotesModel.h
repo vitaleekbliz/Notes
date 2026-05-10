@@ -1,7 +1,8 @@
 #include <QAbstractListModel>
 #include <QVector>
 
-struct NoteItem {
+struct NoteItem
+{
 	QString title;
 	QString content;
 	QString date;
@@ -11,7 +12,8 @@ class NotesModel : public QAbstractListModel
 {
 	Q_OBJECT
 public:
-	enum NoteRoles {
+	enum NoteRoles
+	{
 		TitleRole = Qt::UserRole + 1,
 		ContentRole,
 		DateRole
@@ -22,7 +24,9 @@ public:
 	virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 	virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 	virtual QHash<int, QByteArray> roleNames() const override;
+	virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 
+	Q_INVOKABLE void updateNote(int index, const QString& title, const QString& content);
 	Q_INVOKABLE void addNote(const QString& title, const QString& content);
 	Q_INVOKABLE void addNote(const QString& title);
 	Q_INVOKABLE void removeNote(int index);

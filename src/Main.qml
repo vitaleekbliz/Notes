@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Notes
 
 Window {
     id: root
@@ -17,11 +18,15 @@ Window {
         anchors.fill: parent
         spacing: 6
         NotesList{
+            id: notesListMain
+
             Layout.preferredWidth: 300
             Layout.fillHeight: true
         }
 
         NotesEditor{
+            targetView: notesListMain.internalList
+
             Layout.fillWidth: true
             Layout.fillHeight: true
         }

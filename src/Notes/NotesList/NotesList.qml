@@ -5,6 +5,8 @@ import QtQuick.Layouts
 Page {
     id: notesList
 
+    property alias internalList: listView
+
     // 1. Header with Dynamic Count
     header: ToolBar {
         background: Rectangle { color: "#f3f3f3" }
@@ -120,8 +122,6 @@ Page {
                         color: "#0078d4"
                         visible: listView.currentIndex === index || delegateRoot.isHeld
                     }
-
-                    //z: delegateRoot.isHeld ? 10 : 1
                 }
             }
         }
@@ -139,7 +139,7 @@ Page {
 
                 Button {
                     text: "Add Note"
-                    onClicked: notesModel.addNote("New Note", "Content")
+                    onClicked: notesModel.addNote("New Note")
                 }
 
                 Button {
