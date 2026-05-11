@@ -1,13 +1,30 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.24)
 
 project(Notes VERSION 0.1 LANGUAGES CXX) 
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 6.10 QUIET COMPONENTS Quick Core Qml)
+
+
+if(NOT Qt6_FOUND)
+    message(STATUS "Local Qt not found. Falling back to FetchContent (this will take a while...)")
+    include(FetchContent)
+    FetchContent_Declare(
+        Qt6
+        GIT_REPOSITORY https://github.com/qt/qt5.git
+        GIT_TAG v6.10.0
+        GIT_PROGRESS TRUE
+    )
+    # Optimization: Disable everything we don't need to speed up build
+    set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(Qt6)
+else()
+    message(STATUS "Found local Qt installation: ${Qt6_DIR}")
+endif()
 
 qt_standard_project_setup(REQUIRES 6.10)
-
 
 qt_add_executable(appNotes
     src/main.cpp
@@ -51,3 +68,12 @@ install(TARGETS appNotes
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+if(WIN32)
+    qt_generate_deploy_app_script(
+        TARGET appNotes
+        OUTPUT_SCRIPT deploy_script
+        NO_TRANSLATIONS # Optional: saves space
+    )
+    install(SCRIPT ${deploy_script})
+endif()

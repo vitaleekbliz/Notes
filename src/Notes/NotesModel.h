@@ -27,11 +27,13 @@ public:
 	virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 
 	Q_INVOKABLE void updateNote(int index, const QString& title, const QString& content);
-	Q_INVOKABLE void addNote(const QString& title, const QString& content);
-	Q_INVOKABLE void addNote(const QString& title);
+	Q_INVOKABLE void addNote(const QString& title, const QString& content = QString());
 	Q_INVOKABLE void removeNote(int index);
 	Q_INVOKABLE void moveNotes(int from, int to);
 
 private:
+	void saveToSettings();
+	void loadFromSettings();
+
 	QVector<NoteItem> m_Notes;
 };

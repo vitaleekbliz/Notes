@@ -1,13 +1,17 @@
 #include "NotesModel.h"
 
 #include <QDateTime>
+#include <QSettings>
 
 NotesModel::NotesModel(QObject* parent)
 	: QAbstractListModel(parent)
 {
-	// TODO(8BiT): remove debug data
-	addNote("LeetCode 75", "Finish the sliding window section.");
-	addNote("Qt Project", "Implement the C++ model for the team.");
+	loadFromSettings();
+
+	if (m_Notes.isEmpty())
+	{
+		addNote("Welcome", "This is your first note.");
+	}
 }
 
 int NotesModel::rowCount(const QModelIndex& parent) const
@@ -46,14 +50,8 @@ void NotesModel::addNote(const QString& title, const QString& content)
 	beginInsertRows(QModelIndex(), m_Notes.size(), m_Notes.size());
 	m_Notes.append({ title, content, currentTime });
 	endInsertRows();
-}
 
-Q_INVOKABLE void NotesModel::addNote(const QString& title)
-{
-	QString currentTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm");
-	beginInsertRows(QModelIndex(), m_Notes.size(), m_Notes.size());
-	m_Notes.append({ title, QString(), currentTime });
-	endInsertRows();
+	saveToSettings();
 }
 
 void NotesModel::removeNote(int index)
@@ -64,9 +62,11 @@ void NotesModel::removeNote(int index)
 	beginRemoveRows(QModelIndex(), index, index);
 	m_Notes.removeAt(index);
 	endRemoveRows();
+
+	saveToSettings();
 }
 
-Q_INVOKABLE void NotesModel::moveNotes(int from, int to)
+void NotesModel::moveNotes(int from, int to)
 {
 	if (from == to || from < 0 || to < 0 || from >= m_Notes.size() || to >= m_Notes.size())
 		return;
@@ -78,6 +78,8 @@ Q_INVOKABLE void NotesModel::moveNotes(int from, int to)
 		m_Notes.move(from, to);
 		endMoveRows();
 	}
+
+	saveToSettings();
 }
 
 bool NotesModel::setData(const QModelIndex& index, const QVariant& value, int role)
@@ -102,6 +104,7 @@ bool NotesModel::setData(const QModelIndex& index, const QVariant& value, int ro
 	if (changed)
 	{
 		emit dataChanged(index, index, { role });
+		saveToSettings();
 	}
 	return changed;
 }
@@ -111,4 +114,41 @@ void NotesModel::updateNote(int index, const QString& title, const QString& cont
 	QModelIndex modelIndex = this->index(index);
 	setData(modelIndex, title, TitleRole);
 	setData(modelIndex, content, ContentRole);
+}
+
+void NotesModel::saveToSettings()
+{
+	QSettings settings("Company", "NotesApp");
+	settings.beginWriteArray("notes");
+	for (int i = 0; i < m_Notes.size(); ++i)
+	{
+		settings.setArrayIndex(i);
+		settings.setValue("title", m_Notes[i].title);
+		settings.setValue("content", m_Notes[i].content);
+		settings.setValue("date", m_Notes[i].date);
+	}
+	settings.endArray();
+}
+
+void NotesModel::loadFromSettings()
+{
+	QSettings settings("Company", "NotesApp");
+	int size = settings.beginReadArray("notes");
+
+	if (size > 0)
+	{
+		beginResetModel(); // Reset the view for a fresh load
+		m_Notes.clear();
+		for (int i = 0; i < size; ++i)
+		{
+			settings.setArrayIndex(i);
+			NoteItem item;
+			item.title = settings.value("title").toString();
+			item.content = settings.value("content").toString();
+			item.date = settings.value("date").toString();
+			m_Notes.append(item);
+		}
+		endResetModel();
+	}
+	settings.endArray();
 }

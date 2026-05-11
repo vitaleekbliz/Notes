@@ -2,6 +2,7 @@ build/
 out/
 .qtcreator/
 .vs/
+gitfiles/
 
 CMakeUserPresets.json
 CMakePresets.json
