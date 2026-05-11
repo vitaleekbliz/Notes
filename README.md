@@ -4,6 +4,15 @@
 
 ## Build 
 
+### CMake(not working)
+
+Tryed setting up automatic fetching of Qt6 api.  
+1. cmake -B build
+2. cmake --build build --config Debug/Release/RelWithDebInfo --parallel
+3. find windeployqt.exe located in Qt6 submodule and run file on appNotes.exe ".../path/to/windeployqt.exe appNotes.exe"
+
+### Using IDE
+
 1. Install Qt 6.10  
 Download the Qt Online Installer from the official Qt website.  
 Log in and select Qt 6.10 from the package list.  
